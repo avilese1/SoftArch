@@ -5,11 +5,17 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SmbgComponent } from './smbg/smbg.component';
+import { DietComponent } from './diet/diet.component';
+import { ActivityComponent } from './activity/activity.component';
+import { SymptomComponent } from './symptom/symptom.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SmbgComponent
+    SmbgComponent,
+    DietComponent,
+    ActivityComponent,
+    SymptomComponent
   ],
   imports: [
     ReactiveFormsModule,
