@@ -1,0 +1,23 @@
+{
+  "name": "softarch",
+  "version": "1.0.0",
+  "description": "Final demo piece for software architecture class MSOE 2019",
+  "main": "private.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "body-parser": "^1.18.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avilese1/SoftArch.git"
+  },
+  "author": "Eduardo Aviles  Gracie Horton  Bailey Terry  Lily Lux",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/avilese1/SoftArch/issues"
+  },
+  "homepage": "https://github.com/avilese1/SoftArch#readme"
+}
