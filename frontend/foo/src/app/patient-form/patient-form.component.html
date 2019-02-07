@@ -1,0 +1,27 @@
+<form style="padding-right: 1%"[formGroup]="patientForm" (ngSubmit)="onSubmit()">
+  
+  <label>
+    Glucose Level:
+    <input style='display:block;' type="text" formControlName="smbg">
+  </label>
+
+  <label>
+    Symptoms:
+    <input style='display:block;' type="text" formControlName="symptom">
+  </label>
+
+  <label>
+    Activity:
+    <input style='display:block;' type="text" formControlName="activity">
+  </label>
+
+  <label>
+    Diet:
+    <input style='display:block;' type="text" formControlName="diet">
+  </label>
+  
+  <button style='display:block;' type="submit" [disabled]="!patientForm.valid">
+	  Submit
+  </button>
+</form>
+
