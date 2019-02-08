@@ -5,9 +5,30 @@ Changelog
 
 # 2.x release
 
+## v2.3.0
+
+- New: `AbortSignal` support, with README example.
+- Enhance: handle invalid `Location` header during redirect by rejecting them explicitly with `FetchError`.
+- Fix: update `browser.js` to support react-native environment, where `self` isn't available globally.
+
+## v2.2.1
+
+- Fix: `compress` flag shouldn't overwrite existing `Accept-Encoding` header.
+- Fix: multiple `import` rules, where `PassThrough` etc. doesn't have a named export when using node <10 and `--exerimental-modules` flag.
+- Other: Better README.
+
+## v2.2.0
+
+- Enhance: Support all `ArrayBuffer` view types
+- Enhance: Support Web Workers
+- Enhance: Support Node.js' `--experimental-modules` mode; deprecate `.es.js` file
+- Fix: Add `__esModule` property to the exports object
+- Other: Better example in README for writing response to a file
+- Other: More tests for Agent
+
 ## v2.1.2
 
-- Fix: allow `Body` methods to work on ArrayBuffer`-backed `Body` objects
+- Fix: allow `Body` methods to work on `ArrayBuffer`-backed `Body` objects
 - Fix: reject promise returned by `Body` methods when the accumulated `Buffer` exceeds the maximum size
 - Fix: support custom `Host` headers with any casing
 - Fix: support importing `fetch()` from TypeScript in `browser.js`
