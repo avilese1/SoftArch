@@ -64,6 +64,7 @@ app.use(bodyParser.urlencoded({extended:false}));
     
 
 app.get('/', function(req, res){
+    console.log("received get request.");
     res.send('Hello World');
 });
 
