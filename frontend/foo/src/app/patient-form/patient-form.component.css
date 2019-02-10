@@ -1,0 +1,19 @@
+.panel {
+  text-align: left;
+  padding-right: 1%;
+}
+
+input, textarea {
+  display: block;
+  resize: none;
+}
+
+label {
+  display: block;
+  padding-top: 0.5%;
+}
+
+.button-block {
+  display: block;
+  padding-top: 1%;
+}

@@ -1,27 +1,48 @@
-<form style="padding-right: 1%"[formGroup]="patientForm" (ngSubmit)="onSubmit()">
-  
+<form class="panel" style="padding-right: 1%"[formGroup]="patientForm" (ngSubmit)="onSubmit()">
   <label>
-    Glucose Level:
-    <input style='display:block;' type="text" formControlName="smbg">
+    Date:
+    <input type="date" class="form-control" formControlName="date">
+  </label>
+  <label>
+    Fiber (mg):
+    <input type="number" formControlName="fiber">
+  </label>
+  <label>
+    Fat (mg):
+    <input type="number" formControlName="fat">
+  </label>
+  <label>
+    Carbs (mg):
+    <input type="number" formControlName="carbs">
+  </label>
+  <label>
+    Calories Eaten:
+    <input type="number" formControlName="calories">
+  </label>
+  <label>
+    Activity Description:
+    <textarea type="text" rows="5" cols="40" formControlName="activitydesc">
+    </textarea>
+  </label>
+  <label>
+    Calories Burned
+    <input type="number" formControlName="activitycal">
   </label>
 
   <label>
     Symptoms:
-    <input style='display:block;' type="text" formControlName="symptom">
+    <textarea type="text" rows="5" cols="40" formControlName="symptomdesc">
+    </textarea>
   </label>
 
   <label>
-    Activity:
-    <input style='display:block;' type="text" formControlName="activity">
+    Glucose Level:
+    <input type="number" formControlName="glucose">
   </label>
-
-  <label>
-    Diet:
-    <input style='display:block;' type="text" formControlName="diet">
-  </label>
-  
-  <button style='display:block;' type="submit" [disabled]="!patientForm.valid">
-	  Submit
-  </button>
+  <div class="button-block">
+    <button type="submit" [disabled]="!patientForm.valid">
+	    Submit
+    </button>
+  </div>
 </form>
 
