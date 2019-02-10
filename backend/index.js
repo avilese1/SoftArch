@@ -9,6 +9,7 @@ process.env.VIRGIL_API_KEY_BASE64 = "MC4CAQAwBQYDK2VwBCIEIJgSjyevCeo/IIPAMGGzP1X
 process.env.VIRGIL_API_KEY_ID = "c508d2945762d5de48a23eca3db72387";
 process.env.VIRGIL_APP_ID = "3a907a538f1549aba4edcb801cfb1717";
 
+/***************************************JWT Generator*********************************************/
 import { VirgilCrypto, VirgilAccessTokenSigner } from 'virgil-crypto';
 import { JwtGenerator } from 'virgil-sdk';
 
@@ -29,6 +30,9 @@ const jwtGenerator = new JwtGenerator({
     millisecondsToLive:  20 * 60 * 1000 // JWT lifetime - 20 minutes (default)
 });
 
+const keyPair = virgilCrypto.generateKeys();
+jwtGenerator.generateToken('serverToken')
+
 app.get('/virgil-access-token', (req, res) => {
     // Get the identity of the user making the request (this assumes the request
     // is authenticated and there is middleware in place that populates the
@@ -36,10 +40,12 @@ app.get('/virgil-access-token', (req, res) => {
     // Identity can be anything as long as it's unique for each user (e.g. email,
     // name, etc.). You can even obfuscate the identity of your users so that
     // Virgil Security doesn't know your actual user identities.
-    const jwt = jwtGenerator.generateToken(req.user.email);
+    const jwt = jwtGenerator.generateToken('1234');
+    console.log('generated token')
     req.send(jwt.toString());
     //req.send("hello world!");
 });
+/***************************************end*****************************************************/
 
 
 //Whichever middleware we need is here. Not sure what that entails just yet
