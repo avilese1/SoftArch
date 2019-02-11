@@ -5,104 +5,106 @@ var path = require('path');
 
 var app = express();
 
-process.env.VIRGIL_API_KEY_BASE64 = "MC4CAQAwBQYDK2VwBCIEIJgSjyevCeo/IIPAMGGzP1Xq3qErs8iNpE+r09YaXGSf";
-process.env.VIRGIL_API_KEY_ID = "c508d2945762d5de48a23eca3db72387";
-process.env.VIRGIL_APP_ID = "3a907a538f1549aba4edcb801cfb1717";
+const cors = require('cors');
 
-/***************************************JWT Generator*********************************************/
-import { VirgilCrypto, VirgilAccessTokenSigner } from 'virgil-crypto';
-import { JwtGenerator } from 'virgil-sdk';
+const { requireAuthHeader, generateUserToken, pseudoEncodeToken } = require('./api/userValidation');
+const { authenticate } = require('./api/authenticate');
+const { generateVirgilJwt, generateMyVirgilJwt } = require('./api/virgilToken');
 
-const virgilCrypto = new VirgilCrypto();
-// initialize accessTokenSigner that signs users JWTs
-const accessTokenSigner = new VirgilAccessTokenSigner(virgilCrypto);
+app.use(cors({ origin: true, methods: 'OPTIONS,POST,GET', }));
+app.use(express.json());
 
-// import your API Key that you got in Virgil Dashboard from string.
-const apiKey = virgilCrypto.importPrivateKey(process.env.VIRGIL_API_KEY_BASE64);
+app.post('/authenticate', authenticate);
 
-// initialize JWT generator with your Application Id and API Key Id you got in
-// Virgil Dashboard and the `apiKey` object you've just imported.
-const jwtGenerator = new JwtGenerator({
-    appId: process.env.VIRGIL_APP_ID,
-    apiKey: apiKey,
-    apiKeyId: process.env.VIRGIL_API_KEY_ID,
-    accessTokenSigner: accessTokenSigner,
-    millisecondsToLive:  20 * 60 * 1000 // JWT lifetime - 20 minutes (default)
+app.get('/virgil-jwt', requireAuthHeader, generateVirgilJwt);
+app.use(express.static('./public/'));
+
+module.exports = app;
+
+/***********************************e3kit setup***********************************************/
+import { EThree } from '@virgilsecurity/e3kit';
+
+
+// This function returns a token that will be used to authenticate requests
+// to your backend.
+// This is a simplified solution without any real protection, so here you need use your
+// application authentication mechanism.
+function authenticateMe(identity){
+    const token = generateUserToken();
+    pseudoEncodeToken(identity, token);
+    return token;
+}
+// Log in as `alice`
+const eThreePromise = authenticateMe('server').then(authToken => {
+    // E3kit will call this callback function and wait for the Promise resolve.
+    // When it receives Virgil JWT it can do authorized requests to Virgil Cloud.
+    // E3kit uses the identity encoded in the JWT as the current user's identity.
+    return EThree.initialize(getVirgilToken);
+
+    // This function makes authenticated request to GET /virgil-jwt endpoint
+    // The token it returns serves to make authenticated requests to Virgil Cloud
+    async function getVirgilToken() {
+         return generateMyVirgilJwt(pseudoDecodeToken(authToken)).toString()
+    }
 });
 
-const keyPair = virgilCrypto.generateKeys();
-jwtGenerator.generateToken('serverToken')
+eThreePromise.then(eThree => {
+    /************************************registers users on cloud*********************************/
+    // TODO: initialize
+    eThree.register()
+        .then(() => console.log('success'))
+        .catch(e => console.error('error: ', e));
+    /************************************registers users on cloud*********************************/
+})
 
-app.get('/virgil-access-token', (req, res) => {
-    // Get the identity of the user making the request (this assumes the request
-    // is authenticated and there is middleware in place that populates the
-    // `req.user` property with the user record).
-    // Identity can be anything as long as it's unique for each user (e.g. email,
-    // name, etc.). You can even obfuscate the identity of your users so that
-    // Virgil Security doesn't know your actual user identities.
-    const jwt = jwtGenerator.generateToken('1234');
-    console.log('generated token')
-    req.send(jwt.toString());
-    //req.send("hello world!");
+function signAndEncryptData(message) {
+    eThreePromise.then(eThree => {
+        /************************************sign and encrypt data************************************/
+            // TODO: initialize and register user (see EThree.initialize and EThree.register)
+
+            // aliceUID and bobUID - strings with identities of users that receive message
+
+        // Lookup user public keys
+        //const publicKeys = eThree.lookupPublicKeys(usersToEncryptTo);
+        const publicKeys = eThree.lookup('client');
+
+        // Encrypt data using target user public keys
+        const encryptedData = eThree.encrypt(new ArrayBuffer(), publicKeys);
+
+        // Encrypt text using target user public keys
+        const encryptedText = eThree.encrypt( message, publicKeys);
+
+        return {encryptedData, encryptedText};
+        /************************************sign and encrypt data************************************/
+    })
+}
+
+function decryptAndVerifySigniture(sender, encryptedData, encryptedText){
+    eThreePromise.then(async (eThree) => {
+        // TODO: initialize SDK and register users - see EThree.initialize and EThree.register
+
+        // bobUID - string with sender identity
+        // Lookup origin user public keys
+        const publicKey = await eThree.lookup(sender);
+
+        // Decrypt data and verify if it was really written by Bob
+        const decryptedData = await eThree.decrypt(encryptedData, publicKey);
+
+        // Decrypt text and verify if it was really written by Bob
+        const decryptedText = await eThree.decrypt(encryptedText, publicKey);
+
+        return {decryptedData, decryptedText};
+    })
+}
+
+/***********************************e3kit setup******************************************************/
+
+app.get('/hello-world', (req, res) => {
+    var data = signAndEncryptData("Hello World!");
+    res.send(data[1])
 });
-/***************************************end*****************************************************/
-
-
-//Whichever middleware we need is here. Not sure what that entails just yet
-/**
-var logger = function (req, res, next){
-  console.log("Logging");
-  next();
-};
-
-app.use(logger);
-*/
-/**
- * This is where the front end page will go
- */
-
-/**
- * We'll probably need the body-parser for parsing whatever from the request we receive
- */
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:false}));
-    
-
-app.get('/', function(req, res){
-    console.log("received get request.");
-    res.send('Hello World');
-});
-
-/**
- * whichever post request that we need to get to the server is here
- */
-app.post('/data/add', function(req, res){
-   console.log("Data grabbed: " + req.body);
-
-});
-
 
 app.listen(3000, function(){
    console.log("Server listening on port 3000");
 });
-
-function decrypt_message(myname, sendersName) {
-    // prepare private key (will be used to decrypt the message)
-    keyStorage.load(myname).then(privatKeyEntry => {
-        const bobPrivateKey = privatKeyEntry.privateKey;
-        cardManager.searchCards(sendersName).then(aliceCards => {
-            if (aliceCards.length > 0) {
-                const alicePublicKeys = aliceCards.map(card => card.publicKey);
-                const decryptedData = virgilCrypto.decryptThenVerify(
-                    encryptedData,
-                    bobPrivateKey,
-                    alicePublicKeys
-                );
-
-                console.log(decryptedData.toString('utf8'));
-            }
-        });
-    });
-}
 

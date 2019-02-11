@@ -2,126 +2,113 @@ import express from 'express'
 import axios from 'axios'
 var app = express();
 
-import { VirgilCrypto, VirgilCardCrypto, VirgilPrivateKeyExporter } from 'virgil-crypto';
-import { PrivateKeyStorage, CardManager, VirgilCardVerifier } from 'virgil-sdk';
+/***********************************e3kit setup***********************************************/
+import { EThree } from '@virgilsecurity/e3kit';
 
-/*******************************Specify JWT provider*******************************/
-import { CachingJwtProvider } from 'virgil-sdk';
 
-const fetchJwt = () => {
-    const response = axios.get('localhost:3000/virgil-access-token')
-        .then(response => {
-            if (!response.ok) {
-                console.log(response);
-                throw new Error('Failed to get Virgil Access Token');
-            }else{
-                return response.text();
-            }
-        });
+// This function returns a token that will be used to authenticate requests
+// to your backend.
+// This is a simplified solution without any real protection, so here you need use your
+// application authentication mechanism.
+function authenticate(identity) {
+    const response = fetch('http://localhost:3000/authenticate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            identity: identity
+        })
+    });
+    if (!response.ok) {
+        throw new Error(`Error code: ${response.status} \nMessage: ${response.statusText}`);
+    }
 
-    //console.log("error")
-    // response.text();
+    return response.json().then(data => data.authToken);
 }
 
-const jwtProvider = new CachingJwtProvider(fetchJwt);
-/************************************end*******************************************/
+// Log in as `alice`
+const eThreePromise = authenticate('client').then(authToken => {
+    // E3kit will call this callback function and wait for the Promise resolve.
+    // When it receives Virgil JWT it can do authorized requests to Virgil Cloud.
+    // E3kit uses the identity encoded in the JWT as the current user's identity.
+    return EThree.initialize(getVirgilToken);
 
-/*******************************Setup keys storage*********************************/
-// initialize Virgil Crypto library
-const virgilCrypto = new VirgilCrypto();
-const privateKeyExporter = new VirgilPrivateKeyExporter(
-    virgilCrypto
-    // if provided, will be used to encrypt the key bytes before exporting
-    // and decrypt before importing.
-    //'[OPTIONAL_PASSWORD_TO_ENCRYPT_THE_KEYS_WITH]'
-);
-
-// Generate a private key
-const keyPair = virgilCrypto.generateKeys();
-
-const privateKeyStorage = new PrivateKeyStorage(privateKeyExporter);
-
-try {
-// Store the private key with optional metadata (i.e. the PrivateKeyEntry)
-    privateKeyStorage.store('testKey1', keyPair.privateKey, {optional: 'data'}).then(() => {
-
-
-        // Load the private key entry
-        privateKeyStorage.load('my private key').then(privateKeyEntry => {
-            if (privateKeyEntry === null) {
-                return;
+    // This function makes authenticated request to GET /virgil-jwt endpoint
+    // The token it returns serves to make authenticated requests to Virgil Cloud
+    async function getVirgilToken() {
+        const response = await fetch('http://localhost:3000/virgil-jwt', {
+            headers: {
+                // We use bearer authorization, but you can use any other mechanism.
+                // The point is only, this endpoint should be protected.
+                Authorization: `Bearer ${authToken}`,
             }
+        })
+        if (!response.ok) {
+            throw new Error(`Error code: ${response.status} \nMessage: ${response.statusText}`);
+        }
 
-            console.log(privateKeyEntry.privateKey); // VirgilPrivateKey instance
-            console.log(privateKeyEntry.meta); // { optional: 'data' }
-
-            const privateKey = privateKeyEntry.privateKey;
-
-            // Use the privateKey in virgilCrypto operations
-
-            // Delete a private key
-            privateKeyStorage.delete('testKey1')
-                .then(() => {
-                    console.log('Private key has been removed');
-                });
-        });
-
-    })
-}catch(error){
-    console.log(error.message);
-}
-/***************************************end****************************************/
-
-/********************************set up card manager*******************************/
-// initialize Crypto library
-const cardCrypto = new VirgilCardCrypto(virgilCrypto);
-const cardVerifier = new VirgilCardVerifier(cardCrypto);
-
-// initialize cardManager and specify accessTokenProvider, cardVerifier
-const cardManager = new CardManager({
-    cardCrypto: cardCrypto,
-    accessTokenProvider: jwtProvider,
-    cardVerifier: cardVerifier
-});
-/***************************************end***************************************/
-
-
-app.get('/', function(req, res){
-
-    try {
-        var test2 = axios.post('http://localhost:3000/data/add',
-            { data: signEncryptMessage('hello world')})
-            .then(response => {
-                if(response.data){
-                    res.write(response.data)
-                    res.end();
-                }
-            })
-    }catch (error) {
-        console.log(error);
+        // If request was successful we return Promise which will resolve with token string.
+        return response.json().then(data => data.virgilToken);
     }
 });
 
+eThreePromise.then(eThree => {
+        /************************************registers users on cloud*********************************/
+        // TODO: initialize
+        eThree.register()
+            .then(() => console.log('success'))
+            .catch(e => console.error('error: ', e));
+        /************************************registers users on cloud*********************************/
+})
 
-function signEncryptMessage(message){
-    privateKeyStorage.load('testKey1').then(alicePrivateKeyEntry => {
-        const alicePrivateKey = alicePrivateKeyEntry.privateKey;
-        cardManager.searchCards('bob@example.com').then(bobCards => {
-            if (bobCards.length > 0) {
-                const message = message;
-                const bobPublicKeys = bobCards.map(card => card.publicKey);
-                const encryptedData = virgilCrypto.signThenEncrypt(
-                    message,
-                    alicePrivateKey,
-                    bobPublicKeys
-                );
+function signAndEncryptData(message) {
+    eThreePromise.then(eThree => {
+        /************************************sign and encrypt data************************************/
+            // TODO: initialize and register user (see EThree.initialize and EThree.register)
 
-                console.log(encryptedData.toString('base64'));
-                return encryptedData;
-            }
-        });
-    });
+            // aliceUID and bobUID - strings with identities of users that receive message
+
+        // Lookup user public keys
+        //const publicKeys = eThree.lookupPublicKeys(usersToEncryptTo);
+        const publicKeys = eThree.lookup('server');
+
+        // Encrypt data using target user public keys
+        const encryptedData = eThree.encrypt(new ArrayBuffer(), publicKeys);
+
+        // Encrypt text using target user public keys
+        const encryptedText = eThree.encrypt(message, publicKeys);
+
+        return {encryptedData, encryptedText};
+        /************************************sign and encrypt data************************************/
+    })
 }
+
+function decryptAndVerifySigniture(sender, encryptedData, encryptedText){
+    eThreePromise.then(async (eThree) => {
+        // TODO: initialize SDK and register users - see EThree.initialize and EThree.register
+
+        // bobUID - string with sender identity
+        // Lookup origin user public keys
+        const publicKey = await eThree.lookup(sender);
+
+        // Decrypt data and verify if it was really written by Bob
+        const decryptedData = await eThree.decrypt(encryptedData, publicKey);
+
+        // Decrypt text and verify if it was really written by Bob
+        const decryptedText = await eThree.decrypt(encryptedText, publicKey);
+
+        return {decryptedData, decryptedText};
+    })
+}
+
+/***********************************e3kit setup******************************************************/
+
+app.get('/', function(req, res){
+    axios.get('').then( response => {
+        res.send(decryptAndVerifySigniture('server', null, response.data)[1]);
+    })
+});
 
 app.listen('8080');
 console.log('working on 8080');
