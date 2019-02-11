@@ -10,10 +10,15 @@ import { FormGroup, FormControl } from '@angular/forms';
 export class PatientFormComponent {
 
   patientForm = new FormGroup({
-    smbg: new FormControl(''),
-    symptom: new FormControl(''),
-    activity: new FormControl(''),
-    diet: new FormControl(''),
+    fiber: new FormControl(''),
+    fat: new FormControl(''),
+    carbs: new FormControl(''),
+    calories: new FormControl(''),
+    date: new FormControl(''),
+    activitydesc: new FormControl(''),
+    activitycal: new FormControl(''),
+    symptomdesc: new FormControl(''),
+    glucose: new FormControl(''),
   });
 
   onSubmit() {
