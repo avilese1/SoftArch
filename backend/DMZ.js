@@ -34,9 +34,12 @@ app.get("/", function(req,res){
         if(err) throw err;
         console.log("1 record inserted");
     });
-    res.send(key);
+    res.status(200);
+    res.send({valetKey:key});
 });
 
 
 
-app.listen("3030");
+app.listen(3030, function () {
+    console.log("DMZ running on port 3030");
+});
