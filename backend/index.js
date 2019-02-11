@@ -7,6 +7,8 @@ var app = express();
 import { VirgilCrypto, VirgilCardCrypto, VirgilPrivateKeyExporter} from "virgil-crypto";
 import { CachingJwtProvider, CardManager, PrivateKeyStorage, VirgilCardVerifier} from "virgil-sdk";
 
+var clientkey = '';
+var myKey = '';
 
 //MySQL connection creation with the options needed. Replace the user and password as needed
 var connection = mysql.createConnection({
@@ -61,6 +63,7 @@ app.post('/data/add', function(req, res) {
 
     // Generate a key pair
     const keyPair = virgilCrypto.generateKeys();
+    myKey = keyPair.publicKey;
 
     // Store the private key
     await privateKeyStorage.save('alice_private_key', keyPair.privateKey);
@@ -83,6 +86,14 @@ async function fetchVirgilJwt (context) {
 
     return await response.text();
 }
+
+//saves the client's public key
+//sends the servers public key
+app.post('/publickey', (req, res) => {
+    clientkey = req.body.publicKey;
+    res.body.publicKey = myKey;
+    res.sendStatus(200);
+});
 
 //Server running
 app.listen(3000, function () {
