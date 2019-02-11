@@ -1,16 +1,16 @@
 .panel {
   text-align: left;
-  padding-right: 1%;
+  margin-right: 3%;
+  margin-left: 3%;
+}
+
+mat-form-field {
+  display: block;
 }
 
 input, textarea {
   display: block;
   resize: none;
-}
-
-label {
-  display: block;
-  padding-top: 0.5%;
 }
 
 .button-block {

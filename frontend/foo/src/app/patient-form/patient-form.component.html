@@ -1,48 +1,52 @@
-<form class="panel" style="padding-right: 1%"[formGroup]="patientForm" (ngSubmit)="onSubmit()">
-  <label>
-    Date:
-    <input type="date" class="form-control" formControlName="date">
-  </label>
-  <label>
-    Fiber (mg):
-    <input type="number" formControlName="fiber">
-  </label>
-  <label>
-    Fat (mg):
-    <input type="number" formControlName="fat">
-  </label>
-  <label>
-    Carbs (mg):
-    <input type="number" formControlName="carbs">
-  </label>
-  <label>
-    Calories Eaten:
-    <input type="number" formControlName="calories">
-  </label>
-  <label>
-    Activity Description:
-    <textarea type="text" rows="5" cols="40" formControlName="activitydesc">
-    </textarea>
-  </label>
-  <label>
-    Calories Burned
-    <input type="number" formControlName="activitycal">
-  </label>
+<form class="panel" [formGroup]="patientForm" (ngSubmit)="onSubmit()">
+  <mat-form-field appearance="outline">
+    <mat-label>Date</mat-label>
+    <input matInput type="date" required formControlName="date">
+  </mat-form-field>
 
-  <label>
-    Symptoms:
-    <textarea type="text" rows="5" cols="40" formControlName="symptomdesc">
-    </textarea>
-  </label>
+  <mat-form-field appearance="outline">
+    <mat-label>Fiber Consumed (mg)</mat-label>
+    <input matInput type="number" min="0" required formControlName="fiber">
+  </mat-form-field>
 
-  <label>
-    Glucose Level:
-    <input type="number" formControlName="glucose">
-  </label>
+  <mat-form-field appearance="outline">
+    <mat-label>Fat Consumed (mg)</mat-label>
+    <input matInput type="number" min="0" required formControlName="fat">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Carbs Consumed (mg)</mat-label>
+    <input matInput type="number" min="0" required formControlName="carbs">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Calories Consumed</mat-label>
+    <input matInput type="number" min="0" required formControlName="calories">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Activity Description</mat-label>
+    <textarea matInput required placeholder="Please clearly describe any activity you did on this date." type="text" rows="5" cols="40" formControlName="activitydesc"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Calories Burned</mat-label>
+    <input matInput type="number" min="0" required formControlName="activitycal">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Symptoms</mat-label>
+    <textarea matInput required placeholder="Please clearly describe any symptoms you are experiencing" type="text" rows="5" cols="40" rmControlName="symptomdesc"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Glucose Level</mat-label>
+    <input matInput type="number" min="0" required formControlName="glucose">
+  </mat-form-field>
+
   <div class="button-block">
-    <button type="submit" [disabled]="!patientForm.valid">
+    <button mat-raised-button color="primary" type="submit" [disabled]="!patientForm.valid">
 	    Submit
     </button>
   </div>
 </form>
-
