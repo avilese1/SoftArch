@@ -4,6 +4,8 @@ import {VirgilCardCrypto, VirgilCrypto, VirgilPrivateKeyExporter} from "virgil-c
 import {CachingJwtProvider, CardManager, PrivateKeyStorage, VirgilCardVerifier} from "virgil-sdk";
 // import "@babel/polyfill";
 // import "@babel/preset-env";
+import { HttpService } from '../http.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-patient-form',
@@ -12,6 +14,10 @@ import {CachingJwtProvider, CardManager, PrivateKeyStorage, VirgilCardVerifier} 
 })
 
 export class PatientFormComponent {
+
+  constructor(private httpService: HttpService) {
+    httpService.print('got service')
+  }
 
   patientForm = new FormGroup({
     fiber: new FormControl(''),
@@ -27,7 +33,16 @@ export class PatientFormComponent {
 
   onSubmit() {
     this.encrypt();
-    console.warn(this.patientForm.value);
+    console.log(this.patientForm.value);
+    const serverURL = 'http://localhost:8080';
+    console.log('client made');
+    this.sendData(this.httpService, serverURL + '/', this.patientForm.value)
+    .subscribe(status => console.log(JSON.stringify(status)));
+  }
+
+  sendData(service, url, data) {
+    console.warn('SENDING');
+    return service.postData(url, data);
   }
 
   encrypt() {

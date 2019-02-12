@@ -3,10 +3,11 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule, MatInputModule, MatCardModule } from '@angular/material';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PatientFormComponent } from './patient-form/patient-form.component';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpService } from './http.service';
 
 @NgModule({
   declarations: [
@@ -20,9 +21,12 @@ import { PatientFormComponent } from './patient-form/patient-form.component';
     MatInputModule,
     MatCardModule,
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    HttpService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
