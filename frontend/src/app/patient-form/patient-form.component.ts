@@ -1,5 +1,9 @@
-import { Component } from '@angular/core';
-import { FormGroup, FormControl } from '@angular/forms';
+import {Component} from '@angular/core';
+import {FormGroup, FormControl} from '@angular/forms';
+import {VirgilCardCrypto, VirgilCrypto, VirgilPrivateKeyExporter} from "virgil-crypto";
+import {CachingJwtProvider, CardManager, PrivateKeyStorage, VirgilCardVerifier} from "virgil-sdk";
+// import "@babel/polyfill";
+// import "@babel/preset-env";
 
 @Component({
   selector: 'app-patient-form',
@@ -22,6 +26,15 @@ export class PatientFormComponent {
   });
 
   onSubmit() {
+    this.encrypt();
     console.warn(this.patientForm.value);
   }
+
+  encrypt() {
+    const virgilCrypto = new VirgilCrypto();
+    const keys = virgilCrypto.generateKeys();
+    const data = virgilCrypto.encrypt(this.patientForm.value.toLocaleString(), keys.publicKey);
+    console.log("ENCRYPTED PATIENT DATA: " + data.toString('base64'));
+  }
+
 }
