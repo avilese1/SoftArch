@@ -14,6 +14,7 @@ npm install -g @angular/cli
 and then try linking again)
 ng serve
 ```
+Then navigate to localhost:4200
 
 
 ## Backend
