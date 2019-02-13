@@ -23,7 +23,7 @@ How to start the backend and router
 cd backend
 npm install
 ```
-You will need three separate consoles to run the servers (Sorry)
+You will need three separate consoles to run the servers and MySQL installed (Sorry)
 
 ```
 node start
