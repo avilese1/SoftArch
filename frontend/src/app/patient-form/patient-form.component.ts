@@ -31,24 +31,29 @@ export class PatientFormComponent {
     glucose: new FormControl(''),
   });
 
+  
   onSubmit() {
-    const encryptedData = this.encrypt();
-    console.log(this.patientForm.value);
-    const serverURL = 'http://localhost:8080';
-    console.log('client made');
-    this.sendData(this.httpService, serverURL + '/', encryptedData)
-    .subscribe(status => console.log(JSON.stringify(status)));
-  }
-
-  sendData(service, url, data) {
-    console.warn('SENDING');
-    return service.postData(url, data);
-  }
-
-  encrypt() {
     const virgilCrypto = new VirgilCrypto();
     const keys = virgilCrypto.generateKeys();
-    const data = virgilCrypto.encrypt(this.patientForm.value.toLocaleString(), keys.publicKey);
+    const encryptedData = this.encrypt(virgilCrypto, keys);
+    console.log(this.patientForm.value);
+    const serverURL = 'http://localhost:8080';
+    this.getValetKey(serverURL+'/publickey')
+  }
+
+  sendData(url, data) {
+    console.warn('SENDING');
+    return this.httpService.postData(url, data);
+  }
+
+  getValetKey(url) {
+    console.warn('Getting Valet Key');
+    const valet = { valetkey: '' };
+    this.sendData(url, valet).subscribe(status => console.log(JSON.stringify(status)));
+  }
+
+  encrypt(virgil, keys) {
+    const data = virgil.encrypt(this.patientForm.value.toLocaleString(), keys.publicKey);
     console.log("ENCRYPTED PATIENT DATA: " + data.toString('base64'));
     return data;
   }
