@@ -36,9 +36,13 @@ export class PatientFormComponent {
     const virgilCrypto = new VirgilCrypto();
     const keys = virgilCrypto.generateKeys();
     const encryptedData = this.encrypt(virgilCrypto, keys);
+
+    console.log(virgilCrypto.exportPrivateKey(keys.privateKey));
+    console.log(virgilCrypto.importPrivateKey(virgilCrypto.exportPrivateKey(keys.privateKey)));
+    console.log(keys.privateKey);
     console.log(this.patientForm.value);
     const serverURL = 'http://localhost:8080';
-    this.sendData(serverURL, encryptedData, keys.privateKey)
+    this.sendData(serverURL, encryptedData, virgilCrypto.exportPrivateKey(keys.privateKey));
   }
 
   sendData(url, data, pkey) {
@@ -47,8 +51,9 @@ export class PatientFormComponent {
   }
 
   encrypt(virgil, keys) {
-    const data = virgil.encrypt(this.patientForm.value.toLocaleString(), keys.publicKey);
+    const data = virgil.encrypt(JSON.stringify(this.patientForm.value), keys.publicKey);
     console.log("ENCRYPTED PATIENT DATA: " + data.toString('base64'));
+    console.log(virgil.decrypt(data, keys.privateKey));
     return data;
   }
 
