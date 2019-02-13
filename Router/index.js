@@ -17,14 +17,12 @@ app.all("/*", function(req, res, next){
 });
 
 app.post('/data/add', function(req, res) {
-    console.log("I'm here bitches!");
     if(req.body.valetkey === ''){
         axios.get('http://localhost:3030/' ).then( response => {
             res.status(200);
             res.send(response.data);
         })
     }else{
-        console.log("I'm ready to party!");
         axios.post('http://localhost:3000/data/add',{data: req.body.data}).then( response => {
             res.sendStatus(response.status);
         })
