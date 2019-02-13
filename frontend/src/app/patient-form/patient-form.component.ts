@@ -38,18 +38,12 @@ export class PatientFormComponent {
     const encryptedData = this.encrypt(virgilCrypto, keys);
     console.log(this.patientForm.value);
     const serverURL = 'http://localhost:8080';
-    this.getValetKey(serverURL+'/publickey')
+    this.sendData(serverURL, encryptedData, keys.privateKey)
   }
 
-  sendData(url, data) {
+  sendData(url, data, pkey) {
     console.warn('SENDING');
-    return this.httpService.postData(url, data);
-  }
-
-  getValetKey(url) {
-    console.warn('Getting Valet Key');
-    const valet = { valetkey: '' };
-    this.sendData(url, valet).subscribe(status => console.log(JSON.stringify(status)));
+    return this.httpService.postData(url, data, pkey);
   }
 
   encrypt(virgil, keys) {

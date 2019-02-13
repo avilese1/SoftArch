@@ -5,7 +5,6 @@ var mysql = require('mysql');
 var app = express();
 
 import { VirgilCrypto, VirgilCardCrypto, VirgilPrivateKeyExporter} from "virgil-crypto";
-import { CachingJwtProvider, CardManager, PrivateKeyStorage, VirgilCardVerifier} from "virgil-sdk";
 
 var clientkey = '';
 var myKey = '';
@@ -23,6 +22,10 @@ connection.connect(function(err){
     if(err) throw err;
     console.log("Connected!")
 });
+
+//app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 /**
  * This post request is made when the form from the frontend is submitted. It will log it into the DB tables. We may need to get the GET request too? Probably not but just
@@ -42,50 +45,6 @@ app.post('/data/add', function(req, res) {
     });
 
 });
-
-(async function() {
-    const virgilCrypto = new VirgilCrypto();
-    const cardCrypto = new VirgilCardCrypto(virgilCrypto);
-
-    const jwtProvider = new CachingJwtProvider(fetchVirgilJwt);
-    const cardVerifier = new VirgilCardVerifier(cardCrypto);
-    const cardManager = new CardManager({
-        cardCrypto: cardCrypto,
-        accessTokenProvider: jwtProvider,
-        cardVerifier: cardVerifier
-    });
-    const privateKeyStorage = new PrivateKeyStorage(
-        new VirgilPrivateKeyExporter(
-            virgilCrypto,
-            '[OPTIONAL_PASSWORD_TO_ENCRYPT_THE_KEYS_WITH]'
-        )
-    );
-
-    // Generate a key pair
-    const keyPair = virgilCrypto.generateKeys();
-    myKey = keyPair.publicKey;
-
-    // Store the private key
-    await privateKeyStorage.save('alice_private_key', keyPair.privateKey);
-
-    // Publish user's card on the Cards Service
-    const card = await cardManager.publishCard({
-        privateKey: keyPair.privateKey,
-        publicKey: keyPair.publicKey,
-        identity: 'alice@example.com'
-    });
-})();
-
-async function fetchVirgilJwt (context) {
-    // assuming your backend server is serving Virgil JWT tokens in plaintext
-    // at /virgil-access-token endpoint
-    const response = await fetch('/virgil-access-token');
-    if (!response.ok) {
-        throw new Error('Failed to get Virgil Access Token');
-    }
-
-    return await response.text();
-}
 
 //saves the client's public key
 //sends the servers public key

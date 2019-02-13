@@ -1,6 +1,8 @@
 var express = require('express');
 var mysql = require('mysql');
 var app = express();
+var bodyParser = require('body-parser');
+
 
 /**
  * Change the password for your mysql client when testinng
@@ -23,6 +25,9 @@ function generateKey(){
     return key;
 }
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
 app.get("/", function(req,res){
     //generate key and store it in DB as well as in variable
     //Send that key back to the router
@@ -35,7 +40,7 @@ app.get("/", function(req,res){
         console.log("1 record inserted");
     });
     res.status(200);
-    res.send({valetKey:key});
+    res.send({valetkey:key});
 });
 
 
