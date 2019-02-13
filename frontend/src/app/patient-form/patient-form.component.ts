@@ -31,25 +31,29 @@ export class PatientFormComponent {
     glucose: new FormControl(''),
   });
 
+  
   onSubmit() {
-    const encryptedData = this.encrypt();
-    console.log(this.patientForm.value);
-    const serverURL = 'http://localhost:8080';
-    console.log('client made');
-    this.sendData(this.httpService, serverURL + '/', encryptedData)
-    .subscribe(status => console.log(JSON.stringify(status)));
-  }
-
-  sendData(service, url, data) {
-    console.warn('SENDING');
-    return service.postData(url, data);
-  }
-
-  encrypt() {
     const virgilCrypto = new VirgilCrypto();
     const keys = virgilCrypto.generateKeys();
-    const data = virgilCrypto.encrypt(this.patientForm.value.toLocaleString(), keys.publicKey);
+    const encryptedData = this.encrypt(virgilCrypto, keys);
+
+    console.log(virgilCrypto.exportPrivateKey(keys.privateKey));
+    console.log(virgilCrypto.importPrivateKey(virgilCrypto.exportPrivateKey(keys.privateKey)));
+    console.log(keys.privateKey);
+    console.log(this.patientForm.value);
+    const serverURL = 'http://localhost:8080';
+    this.sendData(serverURL, encryptedData, virgilCrypto.exportPrivateKey(keys.privateKey));
+  }
+
+  sendData(url, data, pkey) {
+    console.warn('SENDING');
+    return this.httpService.postData(url, data, pkey);
+  }
+
+  encrypt(virgil, keys) {
+    const data = virgil.encrypt(JSON.stringify(this.patientForm.value), keys.publicKey);
     console.log("ENCRYPTED PATIENT DATA: " + data.toString('base64'));
+    console.log(virgil.decrypt(data, keys.privateKey));
     return data;
   }
 
