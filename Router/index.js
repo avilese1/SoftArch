@@ -17,13 +17,15 @@ app.all("/*", function(req, res, next){
 });
 
 app.post('/data/add', function(req, res) {
+    console.log("I'm here bitches!");
     if(req.body.valetkey === ''){
         axios.get('http://localhost:3030/' ).then( response => {
             res.status(200);
             res.send(response.data);
         })
     }else{
-        axios.post('http://localhost:3000/data/add').then( response => {
+        console.log("I'm ready to party!");
+        axios.post('http://localhost:3000/data/add',{data: req.body.data}).then( response => {
             res.sendStatus(response.status);
         })
     }
@@ -31,15 +33,22 @@ app.post('/data/add', function(req, res) {
 
 app.post('/publicKey', function(req, res){
     console.log(req + "\r\n" + req.body);
+    console.log(req.body.privatekey);
     if(req.body.valetkey === ''){
         axios.get('http://localhost:3030/' ).then( response => {
             res.status(200);
             res.send(response.data);
         })
     }else{
-        axios.post('http://localhost:3000/publicKey').then(response => {
-            res.sendStatus(response.status);
-        })
+        axios.post('http://localhost:3000/publicKey', {privatekey: req.body.privatekey}).then(response => {
+            console.log(response.status);
+            if(response.status === 200) {
+                res.status(200);
+                res.send({inquiry: "Can I get a snack, boo boo?"});
+            }else{
+                console.log("You shouldn't have come here");
+            }
+        });
     }
 });
 
