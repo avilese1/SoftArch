@@ -6,24 +6,23 @@ var mysql = require('mysql');
 var app = express();
 
 import { VirgilCrypto} from "virgil-crypto";
-import { TextEncoder } from 'util';
 import { Buffer } from 'buffer';
 
 var clientkey = '';
 
-//MySQL connection creation with the options needed. Replace the user and password as needed
-var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'Digimon7645!',
-    database: 'ddms'
-});
-
-//Connecting to the MySQL
-connection.connect(function(err){
-    if(err) throw err;
-    console.log("Connected!")
-});
+// //MySQL connection creation with the options needed. Replace the user and password as needed
+// var connection = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: 'Digimon7645!',
+//     database: 'ddms'
+// });
+//
+// //Connecting to the MySQL
+// connection.connect(function(err){
+//     if(err) throw err;
+//     console.log("Connected!")
+// });
 
 //app.use(cors());
 app.use(bodyParser.json());
